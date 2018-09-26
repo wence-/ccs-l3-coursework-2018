@@ -1,6 +1,6 @@
-CFLAGS = -O3 -march=native -mavx -ffast-math
+CFLAGS = -O3 -march=native
 LDFLAGS =
-CC = cc
+CC = gcc
 
 OBJ = optimised-sparsemm.o basic-sparsemm.o utils.o
 HEADER = utils.h
