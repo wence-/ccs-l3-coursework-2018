@@ -3,6 +3,13 @@
 #include <math.h>
 #include "utils.h"
 
+/*
+ * Allocate a sparse matrix in coordinate format.
+ * m - number of rows
+ * n - number of columns
+ * NZ - number of nonzeros
+ * sparse - newly allocated matrix.
+ */
 void alloc_sparse(int m, int n, int NZ, COO *sparse)
 {
     COO sp = calloc(1, sizeof(struct _p_COO));
@@ -14,15 +21,28 @@ void alloc_sparse(int m, int n, int NZ, COO *sparse)
     *sparse = sp;
 }
 
+/*
+ * Free a sparse matrix.
+ * sparse - sparse matrix, may be NULL
+ */
 void free_sparse(COO *sparse)
 {
     COO sp = *sparse;
+    if (!sp) {
+        return;
+    }
     free(sp->coords);
     free(sp->data);
     free(sp);
     *sparse = NULL;
 }
 
+/*
+ * Convert a sparse matrix to dense format in column major format.
+ *
+ * sparse - The sparse matrix to convert
+ * dense - pointer to output dense matrix (will be allocated)
+ */
 void convert_sparse_to_dense(const COO sparse, double **dense)
 {
     int n;
@@ -35,12 +55,23 @@ void convert_sparse_to_dense(const COO sparse, double **dense)
     }
 }
 
+/*
+ * Convert a dense matrix in column major format to sparse.
+ * Entries with absolute value < 1e-15 are flushed to zero and not
+ * stored in the sparse format.
+ *
+ * dense - the dense array
+ * m - number of rows
+ * n - number of columns
+ * sparse - output sparse matrix (allocated by this routine)
+ */
 void convert_dense_to_sparse(const double *dense, int m, int n,
                              COO *sparse)
 {
     int i, j, NZ;
     COO sp;
     NZ = 0;
+    /* Figure out how many nonzeros we're going to have. */
     for (j = 0; j < n; j++) {
         for (i = 0; i < m; i++) {
             double val = dense[j*m + i];
@@ -52,6 +83,7 @@ void convert_dense_to_sparse(const double *dense, int m, int n,
     alloc_sparse(m, n, NZ, &sp);
 
     NZ = 0;
+    /* Fill up the sparse matrix */
     for (i = 0; i < m; i++) {
         for (j = 0; j < n; j++) {
             double val = dense[j*m + i];
@@ -66,6 +98,12 @@ void convert_dense_to_sparse(const double *dense, int m, int n,
     *sparse = sp;
 }
 
+/*
+ * Read a sparse matrix from a file.
+ *
+ * file - The filename to read
+ * sparse - The newly read sparse matrix (allocated here)
+ */
 void read_sparse(const char *file, COO *sparse)
 {
     COO sp;
@@ -120,6 +158,12 @@ void read_sparse(const char *file, COO *sparse)
     fclose(f);
 }
 
+/*
+ * Write a sparse matrix to a file.
+ *
+ * f - The file handle.
+ * sp - The sparse matrix to write.
+ */
 void write_sparse(FILE *f, COO sp)
 {
     int i;
@@ -129,6 +173,11 @@ void write_sparse(FILE *f, COO sp)
     }
 }
 
+/*
+ * Print a sparse matrix to stdout
+ *
+ * sp - The sparse matrix to print.
+ */
 void print_sparse(COO sp)
 {
     write_sparse(stdout, sp);
