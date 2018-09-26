@@ -8,9 +8,9 @@ void basic_sparsemm_sum(const COO, const COO, const COO,
 /* Computes C = A*B.
  * C should be allocated by this routine.
  */
-void optimised_sparsemm(const COO a, const COO b, COO *c)
+void optimised_sparsemm(const COO A, const COO B, COO *C)
 {
-    return basic_sparsemm(a, b, c);
+    return basic_sparsemm(A, B, C);
 }
 
 /* Computes O = (A + B + C) (D + E + F).

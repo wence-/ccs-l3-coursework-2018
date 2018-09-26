@@ -23,5 +23,7 @@ void convert_dense_to_sparse(const double *, int, int, COO *);
 
 void read_sparse(const char *, COO *);
 void write_sparse(FILE *, COO);
+void print_sparse(COO);
+void random_matrix(int, int, double, COO *);
 
 #endif

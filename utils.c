@@ -99,6 +99,29 @@ void convert_dense_to_sparse(const double *dense, int m, int n,
 }
 
 /*
+ * Create a random sparse matrix
+ *
+ * m - number of rows
+ * n - number of columns
+ * frac - fraction of entries that should be nonzero
+ * sparse - newly allocated random matrix.
+ */
+void random_matrix(int m, int n, double frac, COO *sparse)
+{
+    int i, j;
+    double *d = calloc(m*n, sizeof(double));
+    for (j = 0; j < n; j++) {
+        for (i = 0; i < m; i++) {
+            if (drand48() < frac) {
+                d[j*m + i] = drand48();
+            }
+        }
+    }
+    convert_dense_to_sparse(d, m, n, sparse);
+    free(d);
+}
+
+/*
  * Read a sparse matrix from a file.
  *
  * file - The filename to read
