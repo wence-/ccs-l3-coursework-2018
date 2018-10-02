@@ -4,20 +4,16 @@
 
 #include "utils.h"
 
-/* Compute C = A*B in dense, column major, format. */
+/* Compute C = C + A*B in dense, column major, format. */
 static void dgemm(int m, int n, int k, const double *a, const double *b, double *c)
 {
     int i, j, p;
     int lda = m;
     int ldb = k;
     int ldc = m;
-    for (i = 0; i < m; i++) {
-        for (j = 0; j < n; j++) {
-            /* c[i, j] <-  \sum_p a[i, p] * b[p, j]
-             * i.e. the dot product of the ith row of a with the jth
-             * column of b. */
-            c[j*ldc + i] = 0;
-            for (p = 0; p < k; p++) {
+    for (j = 0; j < n; j++) {
+        for (p = 0; p < k; p++) {
+            for (i = 0; i < m; i++) {
                 c[j*ldc + i] = c[j*ldc + i] + a[p*lda + i] * b[j*ldb + p];
             }
         }
@@ -49,13 +45,14 @@ void basic_sparsemm(const COO A, const COO B, COO *C)
         free(b);
         exit(1);
     }
-    c = malloc(m*n*sizeof(double));
+    alloc_dense(m, n, &c);
+    zero_dense(m, n, c);
 
     dgemm(m, n, k, a, b, c);
-    free(a);
-    free(b);
+    free_dense(&a);
+    free_dense(&b);
     convert_dense_to_sparse(c, m, n, C);
-    free(c);
+    free_dense(&c);
 }
 
 /* Computes O = (A + B + C) (D + E + F) by converting to dense column
@@ -122,14 +119,15 @@ void basic_sparsemm_sum(const COO A, const COO B, const COO C,
             d[j*k + i] += e[j*k + i] + f[j*k + i];
         }
     }
-    free(b);
-    free(c);
-    free(e);
-    free(f);
-    c = malloc(m*n*sizeof(double));
+    free_dense(&b);
+    free_dense(&c);
+    free_dense(&e);
+    free_dense(&f);
+    alloc_dense(m, n, &c);
+    zero_dense(m, n, c);
     dgemm(m, n, k, a, d, c);
-    free(a);
-    free(d);
+    free_dense(&a);
+    free_dense(&d);
     convert_dense_to_sparse(c, m, n, O);
-    free(c);
+    free_dense(&c);
 }
