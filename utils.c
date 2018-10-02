@@ -4,6 +4,46 @@
 #include "utils.h"
 
 /*
+ * Allocate a dense matrix
+ * m - number of rows
+ * n - number of columns
+ * dense - newly allocated matrix.
+ */
+void alloc_dense(int m, int n, double **dense)
+{
+    posix_memalign((void **)dense, 64, m*n*sizeof(**dense));
+}
+
+/*
+ * Free a dense matrix
+ * dense - dense matrix, may be NULL
+ */
+void free_dense(double **dense)
+{
+    if (!*dense) {
+        return;
+    }
+    free(*dense);
+    *dense = NULL;
+}
+
+/*
+ * Zero a dense matrix
+ * m - number of rows
+ * n - number of columns
+ * dense - matrix to zero.
+ */
+void zero_dense(int m, int n, double *dense)
+{
+    int i, j;
+    for (j = 0; j < n; j++) {
+        for (i = 0; i < m; i++) {
+            dense[j*m + i] = 0;
+        }
+    }
+}
+
+/*
  * Allocate a sparse matrix in coordinate format.
  * m - number of rows
  * n - number of columns
@@ -46,9 +86,10 @@ void free_sparse(COO *sparse)
 void convert_sparse_to_dense(const COO sparse, double **dense)
 {
     int n;
-    *dense = calloc(sparse->m * sparse->n, sizeof(double));
+    int i, j;
+    alloc_dense(sparse->m, sparse->n, dense);
+    zero_dense(sparse->m, sparse->n, *dense);
     for (n = 0; n < sparse->NZ; n++) {
-        int i, j;
         i = sparse->coords[n].i;
         j = sparse->coords[n].j;
         (*dense)[j * sparse->m + i] = sparse->data[n];
@@ -109,7 +150,8 @@ void convert_dense_to_sparse(const double *dense, int m, int n,
 void random_matrix(int m, int n, double frac, COO *sparse)
 {
     int i, j;
-    double *d = calloc(m*n, sizeof(double));
+    double *d;
+    alloc_dense(m, n, &d);
     for (j = 0; j < n; j++) {
         for (i = 0; i < m; i++) {
             if (drand48() < frac) {
@@ -118,7 +160,7 @@ void random_matrix(int m, int n, double frac, COO *sparse)
         }
     }
     convert_dense_to_sparse(d, m, n, sparse);
-    free(d);
+    free_dense(&d);
 }
 
 /*

@@ -1,5 +1,5 @@
-CFLAGS = -O3 -march=native
-LDFLAGS =
+CFLAGS = -O3 -march=native  -D_GNU_SOURCE
+LDFLAGS = -lm
 CC = gcc
 
 OBJ = optimised-sparsemm.o basic-sparsemm.o utils.o
