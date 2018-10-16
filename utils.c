@@ -76,50 +76,12 @@ struct drand48_data {
   int init;                    /* Flag for initializing.  */
 };
 
+typedef struct drand48_data drand48_data;
 /* Global state for non-reentrant functions. */
 static drand48_data libc_drand48_data;
 
 // ---------------------------------------------------------------------------
-static double drand48 ()
-{
-  double result;
-  (void) erand48_r (libc_drand48_data.x, &libc_drand48_data, &result);
-  return result;
-}
-
 // ---------------------------------------------------------------------------
-static int erand48_r (unsigned short int xsubi[3],
-                      drand48_data *buffer,
-                      double *result)
-{
-  union ieee754_double temp;
-
-  /* Compute next state.  */
-  if (drand48_iterate (xsubi, buffer) < 0) return -1;
-
-  /* Construct a positive double with the 48 random bits distributed over
-     its fractional part so the resulting FP number is [0.0,1.0).  */
-
-#if USHRT_MAX == 65535
-  temp.ieee.negative = 0;
-  temp.ieee.exponent = IEEE754_DOUBLE_BIAS;
-  temp.ieee.mantissa0 = (xsubi[2] << 4) | (xsubi[1] >> 12);
-  temp.ieee.mantissa1 = ((xsubi[1] & 0xfff) << 20) | (xsubi[0] << 4);
-#elif USHRT_MAX == 2147483647
-  temp.ieee.negative = 0;
-  temp.ieee.exponent = IEEE754_DOUBLE_BIAS;
-  temp.ieee.mantissa0 = (xsubi[1] << 4) | (xsubi[0] >> 28);
-  temp.ieee.mantissa1 = ((xsubi[0] & 0xfffffff) << 4);
-#else
-# error Unsupported size of short int
-#endif
-
-  /* Please note the lower 4 bits of mantissa1 are always 0.  */
-  *result = temp.d - 1.0;
-
-  return 0;
-}
-
 // ---------------------------------------------------------------------------
 static int drand48_iterate (unsigned short int xsubi[3], drand48_data *buffer)
 {
@@ -167,6 +129,46 @@ static int drand48_iterate (unsigned short int xsubi[3], drand48_data *buffer)
   return 0;
 }
 
+
+static int erand48_r (unsigned short int xsubi[3],
+                      drand48_data *buffer,
+                      double *result)
+{
+  union ieee754_double temp;
+
+  /* Compute next state.  */
+  if (drand48_iterate (xsubi, buffer) < 0) return -1;
+
+  /* Construct a positive double with the 48 random bits distributed over
+     its fractional part so the resulting FP number is [0.0,1.0).  */
+
+#if USHRT_MAX == 65535
+  temp.ieee.negative = 0;
+  temp.ieee.exponent = IEEE754_DOUBLE_BIAS;
+  temp.ieee.mantissa0 = (xsubi[2] << 4) | (xsubi[1] >> 12);
+  temp.ieee.mantissa1 = ((xsubi[1] & 0xfff) << 20) | (xsubi[0] << 4);
+#elif USHRT_MAX == 2147483647
+  temp.ieee.negative = 0;
+  temp.ieee.exponent = IEEE754_DOUBLE_BIAS;
+  temp.ieee.mantissa0 = (xsubi[1] << 4) | (xsubi[0] >> 28);
+  temp.ieee.mantissa1 = ((xsubi[0] & 0xfffffff) << 4);
+#else
+# error Unsupported size of short int
+#endif
+
+  /* Please note the lower 4 bits of mantissa1 are always 0.  */
+  *result = temp.d - 1.0;
+
+  return 0;
+}
+
+static double drand48 ()
+{
+  double result;
+  (void) erand48_r (libc_drand48_data.x, &libc_drand48_data, &result);
+  return result;
+}
+
 // ---------------------------------------------------------------------------
 static void srand48 (long int seedval)
 {
@@ -204,13 +206,6 @@ static int srand48_r (long int seedval, drand48_data *buffer)
 }
 
 // ---------------------------------------------------------------------------
-static unsigned short int * seed48 (unsigned short int seed16v[3])
-{
-  (void) seed48_r (seed16v, &libc_drand48_data);
-  return libc_drand48_data.old_x;
-}
-
-// ---------------------------------------------------------------------------
 static int seed48_r (unsigned short int seed16v[3], drand48_data *buffer)
 {
   /* Save old value at a private place to be used as return value.  */
@@ -239,6 +234,13 @@ static int seed48_r (unsigned short int seed16v[3], drand48_data *buffer)
 
   return 0;
 }
+// ---------------------------------------------------------------------------
+static unsigned short int * seed48 (unsigned short int seed16v[3])
+{
+  (void) seed48_r (seed16v, &libc_drand48_data);
+  return libc_drand48_data.old_x;
+}
+
 
 #endif  /* _MSC_VER */
 /*
