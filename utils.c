@@ -1,14 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#ifdef _MSC_VER
-#include <malloc.h>
-#endif
 #include <string.h>
 #include <limits.h>
 #include "utils.h"
 
 
+#ifdef _MSC_VER
 // -*- C++ -*-
 // $Id: drand48.src,v 1.1.1.1.2.1 2004/04/28 06:02:54 garren Exp $
 // ---------------------------------------------------------------------------
@@ -18,7 +16,6 @@
 //
 
 
-#ifdef _MSC_VER
 #define	__LITTLE_ENDIAN	1234
 #define	__BIG_ENDIAN	4321
 
@@ -31,12 +28,7 @@
 
 #define IEEE754_DOUBLE_BIAS	0x3ff /* Added to exponent.  */
 
-//#ifdef WIN32
-//#include <wtypes.h>
-//typedef ULONGLONG u_int64_t;
-//#else
 typedef unsigned long long int u_int64_t;
-//#endif
 
 union ieee754_double {
   double d;
@@ -251,11 +243,7 @@ static unsigned short int * seed48 (unsigned short int seed16v[3])
  */
 void alloc_dense(int m, int n, double **dense)
 {
-  #ifdef _MSC_VER
-  *dense = _aligned_malloc(m*n*sizeof(**dense), 64);
-  #else
-  posix_memalign((void **)dense, 64, m*n*sizeof(**dense));
-  #endif
+  *dense = malloc(m*n*sizeof(**dense));
 }
 
 /*
