@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <malloc.h>
 #include "utils.h"
 
 /*
@@ -11,7 +12,11 @@
  */
 void alloc_dense(int m, int n, double **dense)
 {
-    posix_memalign((void **)dense, 64, m*n*sizeof(**dense));
+  #ifdef _MSC_VER
+  *dense = _aligned_malloc(m*n*sizeof(**dense), 64);
+  #else
+  posix_memalign((void **)dense, 64, m*n*sizeof(**dense));
+  #endif
 }
 
 /*
