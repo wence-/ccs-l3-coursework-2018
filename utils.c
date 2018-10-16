@@ -76,16 +76,6 @@ struct drand48_data {
   int init;                    /* Flag for initializing.  */
 };
 
-extern "C" {
-  double drand48 ();
-  int erand48_r (unsigned short int[3], drand48_data *, double *result);
-  int drand48_iterate (unsigned short int[3], drand48_data *);
-  void srand48 (long int);
-  int srand48_r (long int, drand48_data *);
-  unsigned short int * seed48 (unsigned short int[3]);
-  int seed48_r (unsigned short int[3], drand48_data *);
-}
-
 /* Global state for non-reentrant functions. */
 static drand48_data libc_drand48_data;
 
