@@ -3,6 +3,7 @@
 #include <math.h>
 #include <string.h>
 #include <limits.h>
+#include <stdint.h>
 #include "utils.h"
 
 
@@ -196,7 +197,7 @@ void read_sparse(const char *file, COO *sparse)
         fclose(f);
         exit(1);
     }
-    if (NZ > (long unsigned)m*n) {
+    if (NZ > (uint64_t)m*n) {
         fprintf(stderr, "More nonzeros (%d) than matrix entries (%d x %d)!\n", NZ, m, n);
         fclose(f);
         exit(1);
