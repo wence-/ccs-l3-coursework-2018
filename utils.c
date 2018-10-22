@@ -196,7 +196,7 @@ void read_sparse(const char *file, COO *sparse)
         fclose(f);
         exit(1);
     }
-    if (NZ > m*n) {
+    if (NZ > (long unsigned)m*n) {
         fprintf(stderr, "More nonzeros (%d) than matrix entries (%d x %d)!\n", NZ, m, n);
         fclose(f);
         exit(1);
