@@ -167,6 +167,8 @@ void random_matrix(int m, int n, double frac, COO *sparse)
         for (i = 0; i < m; i++) {
             if (drand48() < frac) {
                 d[j*m + i] = drand48();
+            } else {
+              d[j*m + i] = 0.0;
             }
         }
     }
