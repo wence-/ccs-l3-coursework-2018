@@ -260,3 +260,72 @@ void print_sparse(COO sp)
 {
     write_sparse(stdout, sp);
 }
+
+void read_sparse_binary(const char *file, COO *sparse)
+{
+    COO sp;
+    int m, n, NZ;
+    size_t nread;
+    FILE *f = fopen(file, "r");
+
+    nread = fread(&m, sizeof(m), 1, f);
+    if (nread != 1) {
+      fprintf(stderr, "Did not read rows from file\n");
+      exit(1);
+    }
+    nread = fread(&n, sizeof(n), 1, f);
+    if (nread != 1) {
+      fprintf(stderr, "Did not read columns from file\n");
+      exit(1);
+    }
+    nread = fread(&NZ, sizeof(NZ), 1, f);
+    if (nread != 1) {
+      fprintf(stderr, "Did not read number of nonzeros from file\n");
+      exit(1);
+    }
+    alloc_sparse(m, n, NZ, &sp);
+    nread = fread(sp->coords, sizeof(*sp->coords), NZ, f);
+    if (nread != NZ) {
+      fprintf(stderr, "Did not read nonzero locations from file\n");
+      exit(1);
+    }
+    nread = fread(sp->data, sizeof(*sp->data), NZ, f);
+    if (nread != NZ) {
+      fprintf(stderr, "Did not read nonzero values from file\n");
+      exit(1);
+    }
+    *sparse = sp;
+    fclose(f);
+}
+
+void write_sparse_binary(FILE *f, COO sp)
+{
+  size_t nwrite;
+  nwrite = fwrite(&(sp->m), sizeof(sp->m), 1, f);
+  if (nwrite != 1) {
+    fprintf(stderr, "Could not write rows to output file\n");
+    exit(1);
+  }
+
+  nwrite = fwrite(&(sp->n), sizeof(sp->n), 1, f);
+  if (nwrite != 1) {
+    fprintf(stderr, "Could not write columns to output file\n");
+    exit(1);
+  }
+
+  nwrite = fwrite(&(sp->NZ), sizeof(sp->NZ), 1, f);
+  if (nwrite != 1) {
+    fprintf(stderr, "Could not write number of nonzeros to output file\n");
+    exit(1);
+  }
+  nwrite = fwrite(sp->coords, sizeof(*sp->coords), sp->NZ, f);
+  if (nwrite != sp->NZ) {
+    fprintf(stderr, "Could not write nonzero locations to output file\n");
+    exit(1);
+  }
+  nwrite = fwrite(sp->data, sizeof(*sp->data), sp->NZ, f);
+  if (nwrite != sp->NZ) {
+    fprintf(stderr, "Could not write nonzero values to output file\n");
+    exit(1);
+  }
+}
