@@ -247,7 +247,7 @@ void write_sparse(FILE *f, COO sp)
     int i;
     fprintf(f, "%d %d %d\n", sp->m, sp->n, sp->NZ);
     for (i = 0; i < sp->NZ; i++) {
-        fprintf(f, "%d %d %g\n", sp->coords[i].i, sp->coords[i].j, sp->data[i]);
+        fprintf(f, "%d %d %.15g\n", sp->coords[i].i, sp->coords[i].j, sp->data[i]);
     }
 }
 
