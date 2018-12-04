@@ -34,7 +34,7 @@ A, B = map(read_matrix, args.matrices)
 
 actual = read_matrix(args.actual)
 
-expect = A @ B
+expect = numpy.dot(A, B)
 
 diff = expect - actual
 rnorm = scipy.sparse.linalg.norm(diff) / scipy.sparse.linalg.norm(expect)

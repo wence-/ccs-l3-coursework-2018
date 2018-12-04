@@ -36,7 +36,7 @@ A, B, C, D, E, F = map(read_matrix, args.matrices)
 
 actual = read_matrix(args.actual)
 
-expect = (A + B + C) @ (D + E + F)
+expect = numpy.dot((A + B + C), (D + E + F))
 
 diff = expect - actual
 rnorm = scipy.sparse.linalg.norm(diff) / scipy.sparse.linalg.norm(expect)
