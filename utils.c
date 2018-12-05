@@ -267,7 +267,10 @@ void read_sparse_binary(const char *file, COO *sparse)
     int m, n, NZ;
     size_t nread;
     FILE *f = fopen(file, "r");
-
+    if (!f) {
+        fprintf(stderr, "Unable to open %s for reading.\n", file);
+        exit(1);
+    }
     nread = fread(&m, sizeof(m), 1, f);
     if (nread != 1) {
       fprintf(stderr, "Did not read rows from file\n");
