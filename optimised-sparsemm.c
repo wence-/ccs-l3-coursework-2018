@@ -53,7 +53,7 @@ static int cmp_csr(const void *a_, const void *b_)
 
 static void convert_coo_to_csr(const COO in, CSR *out)
 {
-  struct coord_data *tmp = malloc(in->NZ * sizeof(struct coord_data));
+  struct coord_data *tmp = malloc(in->NZ * sizeof(*tmp));
   int i, last_row;
 
   for (i = 0; i < in->NZ; i++) {
@@ -62,7 +62,7 @@ static void convert_coo_to_csr(const COO in, CSR *out)
     tmp[i].d = in->data[i];
   }
 
-  qsort(tmp, in->NZ, sizeof(struct coord_data), cmp_csr);
+  qsort(tmp, in->NZ, sizeof(*tmp), cmp_csr);
 
   alloc_csr(in->m, in->n, in->NZ, out);
 
@@ -110,7 +110,7 @@ static void print_csr(const CSR in)
 static void matmult_symbolic_csr_csr(const CSR A, const CSR B, CSR *out)
 {
   CSR C;
-  int *seen = malloc(B->n * sizeof(int));
+  int *seen = malloc(B->n * sizeof(*seen));
   int i;
   alloc_csr(A->m, B->n, 0, &C);
   for (i = 0; i < B->n; i++) {
@@ -145,9 +145,9 @@ static void matmult_symbolic_csr_csr(const CSR A, const CSR B, CSR *out)
 
 static void matmult_numeric_csr_csr(const CSR A, const CSR B, CSR C)
 {
-  double *colsums = calloc(C->n, sizeof(double));
+  double *colsums = calloc(C->n, sizeof(*colsums));
   /* Poor man's hashtable */
-  int *nonzero_cols = malloc(C->n * sizeof(int));
+  int *nonzero_cols = malloc(C->n * sizeof(*nonzero_cols));
   int ptr = 0;
   int i;
 
@@ -217,8 +217,8 @@ static void matsum_csr_csr(const CSR A, const CSR B, const CSR C, CSR *out)
 {
   CSR O;
   int i, ptr;
-  int *seen = malloc(B->n * sizeof(int));
-  int *which = malloc(B->n * sizeof(int));
+  int *seen = malloc(B->n * sizeof(*seen));
+  int *which = malloc(B->n * sizeof(*which));
   /* Max possible space (no overlap of nonzero patterns) */
   alloc_csr(A->m, A->n, A->NZ + B->NZ + C->NZ, &O);
 
@@ -267,10 +267,6 @@ void optimised_sparsemm_sum(const COO A, const COO B, const COO C,
 {
   CSR Ac, Bc, Cc, Dc, Ec, Fc, Oc;
   CSR left, right;
-  /*
-   * basic_sparsemm_sum(A, B, C, D, E, F, O);
-   * return;
-   */
   convert_coo_to_csr(A, &Ac);
   convert_coo_to_csr(B, &Bc);
   convert_coo_to_csr(C, &Cc);
@@ -294,8 +290,4 @@ void optimised_sparsemm_sum(const COO A, const COO B, const COO C,
   free_csr(&right);
   convert_csr_to_coo(Oc, O);
   free_csr(&Oc);
-
-  /*
-   * return basic_sparsemm_sum(A, B, C, D, E, F, O);
-   */
 }
